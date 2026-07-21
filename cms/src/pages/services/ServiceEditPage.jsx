@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2, Upload, X } from "lucide-react";
 import { toast } from "react-toastify";
@@ -15,8 +15,11 @@ export default function ServiceEditPage() {
   const [imageFile, setImageFile] = useState(null);
   const [removeImageFlag, setRemoveImageFlag] = useState(false);
   const [confirmModal, setConfirmModal] = useState(false);
+  const [leaveConfirmModal, setLeaveConfirmModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
   const [treatments, setTreatments] = useState([]);
   const [treatmentsLoading, setTreatmentsLoading] = useState(true);
+  const initialFormRef = useRef(null);
   const [form, setForm] = useState({
     service_name: "",
     treatmentIds: [],
@@ -34,12 +37,14 @@ export default function ServiceEditPage() {
       const data = await api.get(`/services/${id}`);
       const { service } = data;
       const treatmentIds = service.treatments?.map((t) => t.id) || [];
-      setForm({
+      const initialForm = {
         service_name: service.service_name,
         treatmentIds,
         status: service.status,
         description: service.description || "",
-      });
+      };
+      setForm(initialForm);
+      initialFormRef.current = { form: initialForm, imageFile: null, removeImageFlag: false };
       if (service.image) {
         setImagePreview(`${UPLOAD_URL}${service.image}`);
       }
@@ -109,6 +114,36 @@ export default function ServiceEditPage() {
     }));
   };
 
+  const isDirty = useCallback(() => {
+    if (!initialFormRef.current) return false;
+    const initial = initialFormRef.current;
+    return (
+      form.service_name !== initial.form.service_name ||
+      form.status !== initial.form.status ||
+      form.description !== initial.form.description ||
+      JSON.stringify([...form.treatmentIds].sort()) !== JSON.stringify([...initial.form.treatmentIds].sort()) ||
+      imageFile !== initial.imageFile ||
+      removeImageFlag !== initial.removeImageFlag
+    );
+  }, [form, imageFile, removeImageFlag]);
+
+  const handleBackNavigation = (destination) => {
+    if (isDirty()) {
+      setPendingNavigation(destination);
+      setLeaveConfirmModal(true);
+    } else {
+      navigate(destination);
+    }
+  };
+
+  const handleConfirmLeave = () => {
+    setLeaveConfirmModal(false);
+    if (pendingNavigation) {
+      navigate(pendingNavigation);
+      setPendingNavigation(null);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setError("");
@@ -155,12 +190,12 @@ export default function ServiceEditPage() {
     <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link
-          to={`/services`}
+        <button
+          onClick={() => handleBackNavigation("/services")}
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <ArrowRight size={20} className="text-gray-600" />
-        </Link>
+        </button>
         <div>
           <h1 className="text-xl font-bold text-gray-800">ویرایش خدمت</h1>
           <p className="text-gray-500 text-sm mt-1">بروزرسانی اطلاعات خدمت</p>
@@ -322,6 +357,21 @@ export default function ServiceEditPage() {
         confirmText="بروزرسانی"
         cancelText="انصراف"
         type="info"
+      />
+
+      {/* Leave Page Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={leaveConfirmModal}
+        onClose={() => {
+          setLeaveConfirmModal(false);
+          setPendingNavigation(null);
+        }}
+        onConfirm={handleConfirmLeave}
+        title="ترک صفحه"
+        message="آیا از ترک صفحه اطمینان دارید؟ تغییرات ذخیره نشده از بین خواهند رفت."
+        confirmText="ترک صفحه"
+        cancelText="ماندن در صفحه"
+        type="danger"
       />
     </div>
   );

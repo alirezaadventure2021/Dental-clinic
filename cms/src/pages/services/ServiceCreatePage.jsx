@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2, Upload, X } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../../services/api";
+import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
 export default function ServiceCreatePage() {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ export default function ServiceCreatePage() {
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [leaveConfirmModal, setLeaveConfirmModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
   const [treatments, setTreatments] = useState([]);
   const [treatmentsLoading, setTreatmentsLoading] = useState(true);
   const [form, setForm] = useState({
@@ -79,6 +82,33 @@ export default function ServiceCreatePage() {
     setImagePreview(null);
   };
 
+  const isDirty = useCallback(() => {
+    return (
+      form.service_name.trim() !== "" ||
+      form.description.trim() !== "" ||
+      form.treatmentIds.length > 0 ||
+      form.status !== "active" ||
+      imageFile !== null
+    );
+  }, [form, imageFile]);
+
+  const handleBackNavigation = (destination) => {
+    if (isDirty()) {
+      setPendingNavigation(destination);
+      setLeaveConfirmModal(true);
+    } else {
+      navigate(destination);
+    }
+  };
+
+  const handleConfirmLeave = () => {
+    setLeaveConfirmModal(false);
+    if (pendingNavigation) {
+      navigate(pendingNavigation);
+      setPendingNavigation(null);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -110,12 +140,12 @@ export default function ServiceCreatePage() {
     <div className="max-w-2xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link
-          to="/services"
+        <button
+          onClick={() => handleBackNavigation("/services")}
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <ArrowRight size={20} className="text-gray-600" />
-        </Link>
+        </button>
         <div>
           <h1 className="text-xl font-bold text-gray-800">افزودن خدمت جدید</h1>
           <p className="text-gray-500 text-sm mt-1">
@@ -279,6 +309,21 @@ export default function ServiceCreatePage() {
           </div>
         </form>
       </div>
+
+      {/* Leave Page Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={leaveConfirmModal}
+        onClose={() => {
+          setLeaveConfirmModal(false);
+          setPendingNavigation(null);
+        }}
+        onConfirm={handleConfirmLeave}
+        title="ترک صفحه"
+        message="آیا از ترک صفحه اطمینان دارید؟ تغییرات ذخیره نشده از بین خواهند رفت."
+        confirmText="ترک صفحه"
+        cancelText="ماندن در صفحه"
+        type="danger"
+      />
     </div>
   );
 }
