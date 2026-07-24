@@ -36,7 +36,7 @@ export default function Hero() {
       {/* Background */}
       <div className="absolute inset-0">
         <img
-          src="/images/header-bg.png"
+          src="/header_bg.jpg"
           alt="کلینیک دندانپزشکی"
           className="w-full h-full object-cover scale-105 animate-[floatSlow_20s_ease-in-out_infinite]"
         />
