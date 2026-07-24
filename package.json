@@ -7,12 +7,7 @@
     "cms": "cd cms && npm run dev",
     "website": "cd website && npm run dev",
     "dev": "concurrently \"npm run server\" \"npm run cms\" \"npm run website\"",
-    "install:all": "concurrently \"cd server && npm install\" \"cd cms && npm install\" \"cd website && npm install\"",
-    "build:website": "cd website && npm run build",
-    "build:cms": "cd cms && npm run build",
-    "build": "npm run build:website && npm run build:cms",
-    "start": "cd server && node app.js",
-    "production": "npm run build && npm run start"
+    "install:all": "concurrently \"cd server && npm install\" \"cd cms && npm install\" \"cd website && npm install\""
   },
   "keywords": [],
   "author": "",

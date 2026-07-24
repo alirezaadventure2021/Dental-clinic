@@ -18,7 +18,7 @@ export default function MessageViewPage() {
 
   const fetchMessage = async () => {
     try {
-      const data = await api.get(`/api/messages/${id}`);
+      const data = await api.get(`/messages/${id}`);
       setMessage(data.message);
     } catch (error) {
       toast.error("خطا در دریافت اطلاعات پیام", { position: "top-left" });
@@ -30,7 +30,7 @@ export default function MessageViewPage() {
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/api/messages/${id}`);
+      await api.delete(`/messages/${id}`);
       toast.success("پیام با موفقیت حذف شد", { position: "top-left" });
       navigate("/messages");
     } catch (err) {

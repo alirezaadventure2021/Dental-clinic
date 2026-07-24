@@ -161,7 +161,7 @@ export default function GalleryEditPage() {
         formData.append("removeImage", "true");
       }
 
-      await api.put(`/api/gallery/${id}`, formData);
+      await api.put(`/gallery/${id}`, formData);
       toast.success("تصویر با موفقیت بروزرسانی شد", { position: "top-left" });
       setTimeout(() => navigate(`/gallery/${id}`), 500);
     } catch (err) {

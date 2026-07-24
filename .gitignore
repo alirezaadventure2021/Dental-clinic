@@ -1,11 +1,6 @@
 .mimocode
 ai-instruction.md
 
-# Environment files (keep .example.env)
-.env
-.env.local
-.env.*.local
-
 # Logs
 logs
 *.log
