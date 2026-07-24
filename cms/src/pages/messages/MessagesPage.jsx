@@ -27,7 +27,7 @@ export default function MessagesPage() {
   const fetchMessages = async () => {
     try {
       setLoading(true);
-      const data = await api.get("/messages");
+      const data = await api.get("/api/messages");
       setMessages(data.messages || []);
     } catch (err) {
       toast.error("خطا در دریافت پیام‌ها", { position: "top-left" });
@@ -39,7 +39,7 @@ export default function MessagesPage() {
   const handleDelete = async () => {
     if (!messageToDelete) return;
     try {
-      await api.delete(`/messages/${messageToDelete.id}`);
+      await api.delete(`/api/messages/${messageToDelete.id}`);
       toast.success("پیام با موفقیت حذف شد", { position: "top-left" });
       setMessages((prev) => prev.filter((m) => m.id !== messageToDelete.id));
     } catch (err) {
