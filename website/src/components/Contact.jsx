@@ -60,7 +60,7 @@ export default function Contact() {
     }, 600);
   };
 
-  const inputClass = `w-full py-3.5 px-4 rounded-xl text-base transition-all focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold border-2 ${
+  const inputClass = `w-full py-3 px-4 rounded-lg text-base transition-all focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold border-2 ${
     dark
       ? "bg-black-custom/50 border-gold/10 text-white-custom placeholder:text-gray-mid"
       : "bg-white border-black/8 text-black-custom placeholder:text-gray-mid"
@@ -74,7 +74,7 @@ export default function Contact() {
     <section
       id="contact"
       ref={ref}
-      className={`py-24 sm:py-28 transition-colors duration-300 relative ${
+      className={`py-20 sm:py-24 transition-colors duration-300 relative ${
         dark ? "bg-black-light" : "bg-white-off"
       }`}
     >

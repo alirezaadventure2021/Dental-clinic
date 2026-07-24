@@ -9,6 +9,16 @@ import ServiceCreatePage from "./pages/services/ServiceCreatePage";
 import ServiceViewPage from "./pages/services/ServiceViewPage";
 import ServiceEditPage from "./pages/services/ServiceEditPage";
 import TreatmentsPage from "./pages/treament/TreatmentsPage";
+import FAQPage from "./pages/faq/FAQPage";
+import FAQCreatePage from "./pages/faq/FAQCreatePage";
+import FAQViewPage from "./pages/faq/FAQViewPage";
+import FAQEditPage from "./pages/faq/FAQEditPage";
+import GalleryPage from "./pages/gallery/GalleryPage";
+import GalleryCreatePage from "./pages/gallery/GalleryCreatePage";
+import GalleryViewPage from "./pages/gallery/GalleryViewPage";
+import GalleryEditPage from "./pages/gallery/GalleryEditPage";
+import MessagesPage from "./pages/messages/MessagesPage";
+import MessageViewPage from "./pages/messages/MessageViewPage";
 
 function ProtectedRoute({ children }) {
   const { user, token } = useAuth();
@@ -17,14 +27,6 @@ function ProtectedRoute({ children }) {
 }
 
 // Placeholder pages for sidebar routes
-function GalleryPage() {
-  return (
-    <div>
-      <h1 className="text-xl font-bold">گالری تصاویر</h1>
-      <p className="text-gray-500 mt-2">مدیریت تصاویر گالری</p>
-    </div>
-  );
-}
 function DoctorsPage() {
   return (
     <div>
@@ -38,22 +40,6 @@ function CommentsPage() {
     <div>
       <h1 className="text-xl font-bold">نظرات بیماران</h1>
       <p className="text-gray-500 mt-2">مدیریت نظرات بیماران</p>
-    </div>
-  );
-}
-function MessagesPage() {
-  return (
-    <div>
-      <h1 className="text-xl font-bold">پیام‌ها</h1>
-      <p className="text-gray-500 mt-2">مدیریت پیام‌ها</p>
-    </div>
-  );
-}
-function FAQPage() {
-  return (
-    <div>
-      <h1 className="text-xl font-bold">سوالات متداول</h1>
-      <p className="text-gray-500 mt-2">مدیریت سوالات متداول</p>
     </div>
   );
 }
@@ -120,6 +106,9 @@ export default function AppRouter() {
       >
         <Route index element={<Dashboard />} />
         <Route path="gallery" element={<GalleryPage />} />
+        <Route path="gallery/create" element={<GalleryCreatePage />} />
+        <Route path="gallery/:id" element={<GalleryViewPage />} />
+        <Route path="gallery/:id/edit" element={<GalleryEditPage />} />
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="services" element={<ServicesPage />} />
         <Route path="services/create" element={<ServiceCreatePage />} />
@@ -128,7 +117,11 @@ export default function AppRouter() {
         <Route path="treatments" element={<TreatmentsPage />} />
         <Route path="comments" element={<CommentsPage />} />
         <Route path="messages" element={<MessagesPage />} />
+        <Route path="messages/:id" element={<MessageViewPage />} />
         <Route path="faq" element={<FAQPage />} />
+        <Route path="faq/create" element={<FAQCreatePage />} />
+        <Route path="faq/:id" element={<FAQViewPage />} />
+        <Route path="faq/:id/edit" element={<FAQEditPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="patients" element={<PatientsPage />} />
         <Route path="scheduling" element={<SchedulingPage />} />

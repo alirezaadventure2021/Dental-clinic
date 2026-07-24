@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Eye, Edit, Trash2, Search, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
-import { UPLOAD_URL } from "../../config";
 import api from "../../services/api";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
@@ -19,7 +18,7 @@ export default function ServicesPage() {
 
   const fetchServices = async () => {
     try {
-      const data = await api.get("/services");
+      const data = await api.get("/api/services");
       setServices(data.services || []);
     } catch (error) {
       toast.error("خطا در دریافت لیست خدمات", { position: "top-left" });
@@ -31,7 +30,7 @@ export default function ServicesPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/services/${deleteModal.id}`);
+      await api.delete(`/api/services/${deleteModal.id}`);
       setServices(services.filter((s) => s.id !== deleteModal.id));
       setDeleteModal(null);
       toast.success("خدمت با موفقیت حذف شد", { position: "top-left" });
@@ -126,7 +125,7 @@ export default function ServicesPage() {
                       <div className="flex items-center gap-3">
                         {service.image ? (
                           <img
-                            src={`${UPLOAD_URL}${service.image}`}
+                            src={`${import.meta.env.VITE_API_URL}${service.image}`}
                             alt={service.service_name}
                             className="w-10 h-10 rounded-lg object-cover"
                           />

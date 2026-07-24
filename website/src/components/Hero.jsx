@@ -62,19 +62,19 @@ export default function Hero() {
       />
 
       {/* Content */}
-      <div className="relative z-10 text-center max-w-4xl mx-auto px-6 pt-24 pb-16">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/10 glass-card mb-8 animate-[fadeInDown_0.7s_ease]">
+      <div className="relative z-10 text-center max-w-4xl mx-auto px-6 pt-20 pb-12">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/10 glass-card mb-6 animate-[fadeInDown_0.7s_ease]">
           <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
           <p className="text-gold font-semibold text-xs sm:text-sm tracking-[0.15em]">
             مراقبت دندانپزشکی پیشرفته
           </p>
         </div>
 
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-[1.15] animate-[fadeInUp_0.8s_ease_0.1s_both]">
+        <h1 className="font-display text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-semibold text-white mb-5 leading-[1.1] tracking-tight animate-[fadeInUp_0.8s_ease_0.1s_both]">
           لبخند شما، <span className="gold-gradient-text">اولویت ماست</span>
         </h1>
 
-        <p className="text-white/75 text-lg sm:text-xl mb-10 leading-relaxed max-w-2xl mx-auto animate-[fadeInUp_0.8s_ease_0.2s_both]">
+        <p className="text-white/75 text-base sm:text-lg mb-8 leading-relaxed max-w-2xl mx-auto animate-[fadeInUp_0.8s_ease_0.2s_both]">
           مراقبت دندانپزشکی در سطح جهانی با فناوری پیشرفته، راحتی لوکس و لمسی
           ملایم. لبخند ایده‌آل شما اینجا آغاز می‌شود.
         </p>

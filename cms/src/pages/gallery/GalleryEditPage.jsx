@@ -1,41 +1,69 @@
-import { useEffect, useState, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, Upload, X } from "lucide-react";
-import { toast } from "react-toastify";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { ArrowRight, Loader2, Upload, X } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
 import api from "../../services/api";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
-export default function ServiceCreatePage() {
+export default function GalleryEditPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [removeImageFlag, setRemoveImageFlag] = useState(false);
   const [leaveConfirmModal, setLeaveConfirmModal] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState(null);
-  const [treatments, setTreatments] = useState([]);
-  const [treatmentsLoading, setTreatmentsLoading] = useState(true);
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const initialFormRef = useRef(null);
   const [form, setForm] = useState({
-    service_name: "",
-    treatmentIds: [],
-    status: "active",
     description: "",
+    service_id: "",
   });
 
   useEffect(() => {
-    const fetchTreatments = async () => {
-      try {
-        const data = await api.get("/api/treatments");
-        setTreatments(data.treatments || []);
-      } catch (err) {
-        setError(err.message || "Unable to load treatments");
-      } finally {
-        setTreatmentsLoading(false);
-      }
-    };
+    fetchImage();
+    fetchServices();
+  }, [id]);
 
-    fetchTreatments();
-  }, []);
+  const fetchImage = async () => {
+    try {
+      const data = await api.get(`/api/gallery/${id}`);
+      const { image } = data;
+      const initialForm = {
+        description: image.description || "",
+        service_id: image.service_id || "",
+      };
+      setForm(initialForm);
+      initialFormRef.current = {
+        form: initialForm,
+        imageFile: null,
+        removeImageFlag: false,
+      };
+      if (image.image) {
+        setImagePreview(`${import.meta.env.VITE_API_URL}${image.image}`);
+      }
+    } catch (error) {
+      toast.error("خطا در دریافت اطلاعات تصویر", { position: "top-left" });
+      navigate("/gallery");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchServices = async () => {
+    try {
+      const data = await api.get("/api/services");
+      setServices(data.services || []);
+    } catch (err) {
+      setError(err.message || "Unable to load services");
+    } finally {
+      setServicesLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,32 +93,26 @@ export default function ServiceCreatePage() {
 
     setError("");
     setImageFile(file);
+    setRemoveImageFlag(false);
     setImagePreview(URL.createObjectURL(file));
-  };
-
-  const toggleTreatment = (treatmentId) => {
-    setForm((prev) => ({
-      ...prev,
-      treatmentIds: prev.treatmentIds.includes(treatmentId)
-        ? prev.treatmentIds.filter((id) => id !== treatmentId)
-        : [...prev.treatmentIds, treatmentId],
-    }));
   };
 
   const removeImage = () => {
     setImageFile(null);
     setImagePreview(null);
+    setRemoveImageFlag(true);
   };
 
   const isDirty = useCallback(() => {
+    if (!initialFormRef.current) return false;
+    const initial = initialFormRef.current;
     return (
-      form.service_name.trim() !== "" ||
-      form.description.trim() !== "" ||
-      form.treatmentIds.length > 0 ||
-      form.status !== "active" ||
-      imageFile !== null
+      form.description !== initial.form.description ||
+      form.service_id !== initial.form.service_id ||
+      imageFile !== initial.imageFile ||
+      removeImageFlag !== initial.removeImageFlag
     );
-  }, [form, imageFile]);
+  }, [form, imageFile, removeImageFlag]);
 
   const handleBackNavigation = (destination) => {
     if (isDirty()) {
@@ -112,45 +134,77 @@ export default function ServiceCreatePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    setSaving(true);
 
     try {
+      if (!imagePreview && !imageFile) {
+        setError("تصویر الزامی است");
+        setSaving(false);
+        return;
+      }
+
+      if (!form.service_id) {
+        setError("انتخاب خدمت الزامی است");
+        setSaving(false);
+        return;
+      }
+
       const formData = new FormData();
-      formData.append("service_name", form.service_name);
-      formData.append("treatmentIds", JSON.stringify(form.treatmentIds));
-      formData.append("status", form.status);
       formData.append("description", form.description);
+      formData.append("service_id", form.service_id);
 
       if (imageFile) {
         formData.append("image", imageFile);
       }
 
-      await api.post("/api/services", formData);
-      toast.success("خدمت با موفقیت ایجاد شد", { position: "top-left" });
-      navigate("/services");
+      if (removeImageFlag) {
+        formData.append("removeImage", "true");
+      }
+
+      await api.put(`/gallery/${id}`, formData);
+      toast.success("تصویر با موفقیت بروزرسانی شد", { position: "top-left" });
+      setTimeout(() => navigate(`/gallery/${id}`), 500);
     } catch (err) {
       setError(err.message);
-      toast.error(err.message || "خطا در ایجاد خدمت", { position: "top-left" });
+      toast.error(err.message || "خطا در بروزرسانی تصویر", {
+        position: "top-left",
+      });
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="animate-spin text-gold" size={32} />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
+      <ToastContainer
+        position="top-left"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl
+        pauseOnHover
+        theme="colored"
+      />
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => handleBackNavigation("/services")}
+          onClick={() => handleBackNavigation("/gallery")}
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
         >
           <ArrowRight size={20} className="text-gray-600" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-gray-800">افزودن خدمت جدید</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            اطلاعات خدمت جدید را وارد کنید
-          </p>
+          <h1 className="text-xl font-bold text-gray-800">ویرایش تصویر</h1>
+          <p className="text-gray-500 text-sm mt-1">بروزرسانی اطلاعات تصویر</p>
         </div>
       </div>
 
@@ -163,24 +217,10 @@ export default function ServiceCreatePage() {
             </div>
           )}
 
+          {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              نام خدمت <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              name="service_name"
-              value={form.service_name}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none transition"
-              placeholder="مثلا: ایمپلنت دندانی"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              تصویر خدمت
+              تصویر <span className="text-red-500">*</span>
             </label>
 
             {imagePreview ? (
@@ -188,7 +228,7 @@ export default function ServiceCreatePage() {
                 <img
                   src={imagePreview}
                   alt="پیش‌نمایش"
-                  className="w-32 h-32 object-cover rounded-lg border border-gray-200"
+                  className="w-40 h-40 object-cover rounded-lg border border-gray-200"
                 />
                 <button
                   type="button"
@@ -199,7 +239,7 @@ export default function ServiceCreatePage() {
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gold hover:bg-gold-light/30 transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gold hover:bg-gold-light/30 transition-colors">
                 <Upload size={24} className="text-gray-400 mb-2" />
                 <span className="text-sm text-gray-500">
                   کلیک کنید یا تصویر را بکشید
@@ -217,91 +257,71 @@ export default function ServiceCreatePage() {
             )}
           </div>
 
+          {/* Service Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Related treatments
+              خدمت مرتبط <span className="text-red-500">*</span>
             </label>
-            {treatmentsLoading ? (
+            {servicesLoading ? (
               <div className="flex items-center gap-2 px-4 py-3 text-sm text-gray-500 border border-gray-300 rounded-lg">
                 <Loader2 size={16} className="animate-spin" />
-                Loading treatments...
+                در حال بارگذاری...
               </div>
-            ) : treatments.length === 0 ? (
+            ) : services.length === 0 ? (
               <p className="px-4 py-3 text-sm text-gray-500 border border-gray-300 rounded-lg">
-                No treatments are available.
+                خدمتی موجود نیست.
               </p>
             ) : (
-              <div className="max-h-52 overflow-y-auto rounded-lg border border-gray-300 divide-y divide-gray-100">
-                {treatments.map((treatment) => (
-                  <label
-                    key={treatment.id}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-gray-50"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={form.treatmentIds.includes(treatment.id)}
-                      onChange={() => toggleTreatment(treatment.id)}
-                      className="h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
-                    />
-                    <span className="text-sm text-gray-700">
-                      {treatment.name}
-                    </span>
-                  </label>
+              <select
+                name="service_id"
+                value={form.service_id}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none transition bg-white"
+              >
+                <option value="">انتخاب خدمت</option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.service_name}
+                  </option>
                 ))}
-              </div>
+              </select>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              وضعیت
-            </label>
-            <select
-              name="status"
-              value={form.status}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none transition bg-white"
-            >
-              <option value="active">فعال</option>
-              <option value="inactive">غیرفعال</option>
-            </select>
-          </div>
-
+          {/* Description */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               توضیحات
-            </label>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              توضیحات <span className="text-red-500">*</span>
             </label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
-              rows={4}
-              required
+              rows={3}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none transition resize-none"
-              placeholder="توضیحات خدمت..."
+              placeholder="توضیحات تصویر..."
             />
           </div>
 
+          {/* Submit Buttons */}
           <div className="flex items-center gap-3 pt-4">
             <button
               type="submit"
-              disabled={loading}
+              disabled={saving}
               className="px-6 py-2.5 bg-gold text-navy rounded-lg text-sm font-medium hover:bg-gold-hover focus:ring-2 focus:ring-gold focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {loading ? (
+              {saving ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  <span>در حال ذخیره...</span>
+                  <span>در حال بروزرسانی...</span>
                 </>
               ) : (
-                <span>ذخیره خدمت</span>
+                <span>بروزرسانی تصویر</span>
               )}
             </button>
             <Link
-              to="/services"
+              to={`/gallery/${id}`}
               className="px-6 py-2.5 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
             >
               انصراف

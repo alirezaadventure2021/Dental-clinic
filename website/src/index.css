@@ -2,6 +2,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Colors - Gold palette (unchanged) */
   --color-gold: #C6A962;
   --color-gold-light: #D4BC7C;
   --color-gold-dark: #A8903E;
@@ -18,13 +19,33 @@
   --color-white-custom: #FAFAFA;
   --color-white-off: #F7F5F2;
   --color-cream: #F3EFE8;
+
+  /* Typography */
   --font-display: 'Vazirmatn', sans-serif;
   --font-body: 'Vazirmatn', sans-serif;
+
+  /* Spacing scale */
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --spacing-section: 80px;
+
+  /* Border radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px;
+  scroll-padding-top: 64px;
 }
 
 body {
@@ -207,20 +228,24 @@ body.dark {
 }
 
 .card-hover:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
 }
 
 .btn-primary {
   position: relative;
   overflow: hidden;
   transition:
-    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.3s ease,
     background-color 0.3s ease;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: scale(0.95);
 }
 
 .btn-primary::after {

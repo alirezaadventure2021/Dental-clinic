@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Loader2, Upload, X } from "lucide-react";
 import { toast } from "react-toastify";
-import { UPLOAD_URL } from "../../config";
 import api from "../../services/api";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
@@ -34,7 +33,7 @@ export default function ServiceEditPage() {
 
   const fetchService = async () => {
     try {
-      const data = await api.get(`/services/${id}`);
+      const data = await api.get(`/api/services/${id}`);
       const { service } = data;
       const treatmentIds = service.treatments?.map((t) => t.id) || [];
       const initialForm = {
@@ -44,9 +43,13 @@ export default function ServiceEditPage() {
         description: service.description || "",
       };
       setForm(initialForm);
-      initialFormRef.current = { form: initialForm, imageFile: null, removeImageFlag: false };
+      initialFormRef.current = {
+        form: initialForm,
+        imageFile: null,
+        removeImageFlag: false,
+      };
       if (service.image) {
-        setImagePreview(`${UPLOAD_URL}${service.image}`);
+        setImagePreview(`${import.meta.env.VITE_API_URL}${service.image}`);
       }
     } catch (error) {
       toast.error("خطا در دریافت اطلاعات خدمت", { position: "top-left" });
@@ -58,7 +61,7 @@ export default function ServiceEditPage() {
 
   const fetchTreatments = async () => {
     try {
-      const data = await api.get("/treatments");
+      const data = await api.get("/api/treatments");
       setTreatments(data.treatments || []);
     } catch (err) {
       setError(err.message || "Unable to load treatments");
@@ -121,7 +124,8 @@ export default function ServiceEditPage() {
       form.service_name !== initial.form.service_name ||
       form.status !== initial.form.status ||
       form.description !== initial.form.description ||
-      JSON.stringify([...form.treatmentIds].sort()) !== JSON.stringify([...initial.form.treatmentIds].sort()) ||
+      JSON.stringify([...form.treatmentIds].sort()) !==
+        JSON.stringify([...initial.form.treatmentIds].sort()) ||
       imageFile !== initial.imageFile ||
       removeImageFlag !== initial.removeImageFlag
     );
@@ -166,7 +170,7 @@ export default function ServiceEditPage() {
         formData.append("removeImage", "true");
       }
 
-      await api.put(`/services/${id}`, formData);
+      await api.put(`/api/services/${id}`, formData);
       toast.success("خدمت با موفقیت بروزرسانی شد", { position: "top-left" });
       navigate(`/services/${id}`);
     } catch (err) {

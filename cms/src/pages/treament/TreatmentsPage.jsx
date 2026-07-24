@@ -31,7 +31,7 @@ export default function TreatmentsPage() {
 
   const fetchTreatments = async () => {
     try {
-      const data = await api.get("/treatments");
+      const data = await api.get("/api/treatments");
       setTreatments(data.treatments || []);
     } catch (error) {
       toast.error("خطا در دریافت لیست درمان‌ها");
@@ -49,7 +49,7 @@ export default function TreatmentsPage() {
 
     setCreating(true);
     try {
-      await api.post("/treatments", {
+      await api.post("/api/treatments", {
         name: newName.trim(),
         status: newStatus,
       });
@@ -84,7 +84,7 @@ export default function TreatmentsPage() {
 
     setUpdating(true);
     try {
-      await api.put(`/treatments/${editingId}`, {
+      await api.put(`/api/treatments/${editingId}`, {
         name: editName.trim(),
         status: editStatus,
       });
@@ -101,7 +101,7 @@ export default function TreatmentsPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/treatments/${deleteModal.id}`);
+      await api.delete(`/api/treatments/${deleteModal.id}`);
       toast.success("درمان با موفقیت حذف شد");
       fetchTreatments();
     } catch (error) {
@@ -114,7 +114,7 @@ export default function TreatmentsPage() {
   const handleToggleStatus = async (treatment) => {
     const newStatus = treatment.status === "active" ? "inactive" : "active";
     try {
-      await api.put(`/treatments/${treatment.id}`, { status: newStatus });
+      await api.put(`/api/treatments/${treatment.id}`, { status: newStatus });
       toast.success(
         `وضعیت درمان ${newStatus === "active" ? "فعال" : "غیرفعال"} شد`,
       );
@@ -199,117 +199,119 @@ export default function TreatmentsPage() {
             <p className="text-gray-500">درمانی ثبت نشده است</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {treatments.map((treatment) => (
-              <div
-                key={treatment.id}
-                className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
-              >
-                {editingId === treatment.id ? (
-                  // Edit Mode
-                  <>
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gold rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none"
-                      autoFocus
-                    />
-                    <select
-                      value={editStatus}
-                      onChange={(e) => setEditStatus(e.target.value)}
-                      className="px-3 py-2 border border-gold rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none bg-white w-28"
-                    >
-                      <option value="active">فعال</option>
-                      <option value="inactive">غیرفعال</option>
-                    </select>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => setUpdateModal(treatment)}
-                        disabled={updating}
-                        className="p-2 rounded-lg bg-gold text-navy hover:bg-gold-hover transition-colors disabled:opacity-50"
-                        title="ذخیره"
-                      >
-                        {updating ? (
-                          <Loader2 size={16} className="animate-spin" />
-                        ) : (
-                          <Check size={16} />
-                        )}
-                      </button>
-                      <button
-                        onClick={cancelEdit}
-                        disabled={updating}
-                        className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-50"
-                        title="انصراف"
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  // View Mode
-                  <>
-                    <div className="w-10 h-10 rounded-lg bg-gold-light flex items-center justify-center shrink-0">
-                      <span className="text-gold font-bold text-sm">
-                        {treatment.name.charAt(0)}
-                      </span>
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-800 truncate">
-                        {treatment.name}
-                      </p>
-                    </div>
-
-                    {/* Status Toggle */}
-                    <button
-                      onClick={() => handleToggleStatus(treatment)}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        treatment.status === "active"
-                          ? "bg-gold"
-                          : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          treatment.status === "active"
-                            ? "-translate-x-6"
-                            : "translate-x-1"
-                        }`}
+          <div className="overflow-x-auto">
+            <div className="divide-y divide-gray-100 min-w-[640px]">
+              {treatments.map((treatment) => (
+                <div
+                  key={treatment.id}
+                  className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+                >
+                  {editingId === treatment.id ? (
+                    // Edit Mode
+                    <>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="flex-1 px-3 py-2 border border-gold rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none"
+                        autoFocus
                       />
-                    </button>
-
-                    <span
-                      className={`text-xs font-medium w-16 text-center ${
-                        treatment.status === "active"
-                          ? "text-green-600"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {treatment.status === "active" ? "فعال" : "غیرفعال"}
-                    </span>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => startEdit(treatment)}
-                        className="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
-                        title="ویرایش"
+                      <select
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                        className="px-3 py-2 border border-gold rounded-lg text-sm focus:ring-2 focus:ring-gold focus:border-gold outline-none bg-white w-28"
                       >
-                        <Edit size={16} />
-                      </button>
+                        <option value="active">فعال</option>
+                        <option value="inactive">غیرفعال</option>
+                      </select>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setUpdateModal(treatment)}
+                          disabled={updating}
+                          className="p-2 rounded-lg bg-gold text-navy hover:bg-gold-hover transition-colors disabled:opacity-50"
+                          title="ذخیره"
+                        >
+                          {updating ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Check size={16} />
+                          )}
+                        </button>
+                        <button
+                          onClick={cancelEdit}
+                          disabled={updating}
+                          className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                          title="انصراف"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    // View Mode
+                    <>
+                      <div className="w-10 h-10 rounded-lg bg-gold-light flex items-center justify-center shrink-0">
+                        <span className="text-gold font-bold text-sm">
+                          {treatment.name.charAt(0)}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">
+                          {treatment.name}
+                        </p>
+                      </div>
+
+                      {/* Status Toggle */}
                       <button
-                        onClick={() => setDeleteModal(treatment)}
-                        className="p-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                        title="حذف"
+                        onClick={() => handleToggleStatus(treatment)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          treatment.status === "active"
+                            ? "bg-gold"
+                            : "bg-gray-300"
+                        }`}
                       >
-                        <Trash2 size={16} />
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            treatment.status === "active"
+                              ? "-translate-x-6"
+                              : "translate-x-1"
+                          }`}
+                        />
                       </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+
+                      <span
+                        className={`text-xs font-medium w-16 text-center ${
+                          treatment.status === "active"
+                            ? "text-green-600"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {treatment.status === "active" ? "فعال" : "غیرفعال"}
+                      </span>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => startEdit(treatment)}
+                          className="p-2 rounded-lg text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                          title="ویرایش"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteModal(treatment)}
+                          className="p-2 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                          title="حذف"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>

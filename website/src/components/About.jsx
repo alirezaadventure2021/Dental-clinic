@@ -43,7 +43,7 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className={`py-24 sm:py-28 transition-colors duration-300 relative overflow-hidden ${
+      className={`py-20 sm:py-24 transition-colors duration-300 relative overflow-hidden ${
         dark ? "bg-black-custom" : "bg-white-custom"
       }`}
     >
@@ -77,7 +77,7 @@ export default function About() {
           <div className={`py-5 reveal-left ${inView ? "revealed stagger-2" : ""}`}>
             <p className="section-label mb-4">درباره دکتر علیزاده</p>
             <h2
-              className={`font-display text-3xl sm:text-4xl font-bold mb-2 leading-tight transition-colors ${
+              className={`font-display text-3xl sm:text-4xl font-semibold mb-2 leading-tight tracking-tight transition-colors ${
                 dark ? "text-white-custom" : "text-black-custom"
               }`}
             >

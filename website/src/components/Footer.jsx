@@ -41,7 +41,7 @@ export default function Footer() {
 
   return (
     <footer
-      className={`pt-20 pb-0 transition-colors duration-300 relative overflow-hidden ${
+      className={`pt-16 pb-0 transition-colors duration-300 relative overflow-hidden ${
         dark
           ? "bg-black-light border-t border-gold/10"
           : "bg-black-custom border-t border-white/10"

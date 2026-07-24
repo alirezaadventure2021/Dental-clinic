@@ -1,8 +1,8 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database");
 
 const GalleryImage = sequelize.define(
-  'GalleryImage',
+  "GalleryImage",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -21,18 +21,18 @@ const GalleryImage = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: 'services',
-        key: 'id',
+        model: "services",
+        key: "id",
       },
-      onDelete: 'CASCADE',
-      onUpdate: 'CASCADE',
+      onDelete: "CASCADE",
+      onUpdate: "CASCADE",
     },
   },
   {
-    tableName: 'gallery_images',
+    tableName: "gallery_images",
     timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    createdAt: "created_at",
+    updatedAt: "updated_at",
   },
 );
 

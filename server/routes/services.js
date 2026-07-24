@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const { Service, Treatment } = require("../models");
-const upload = require("../middleware/upload");
+const { uploadAndCompress } = require("../middleware/upload");
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const services = await Service.findAll({
+      include: [{ model: Treatment, as: "treatments" }],
       order: [["created_at", "DESC"]],
     });
     res.json({ services });
@@ -37,7 +38,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Create service with image upload
-router.post("/", upload.single("image"), async (req, res) => {
+router.post("/", uploadAndCompress("image"), async (req, res) => {
   try {
     const { service_name, tags, status, description, treatmentIds } = req.body;
 
@@ -96,7 +97,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 });
 
 // Update service with image upload
-router.put("/:id", upload.single("image"), async (req, res) => {
+router.put("/:id", uploadAndCompress("image"), async (req, res) => {
   try {
     const service = await Service.findByPk(req.params.id);
     if (!service) {

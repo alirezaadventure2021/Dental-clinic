@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Trash2, Loader2, ArrowRight } from "lucide-react";
 import { toast } from "react-toastify";
-import { UPLOAD_URL } from "../../config";
 import api from "../../services/api";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 
@@ -20,7 +19,7 @@ export default function ServiceViewPage() {
 
   const fetchService = async () => {
     try {
-      const data = await api.get(`/services/${id}`);
+      const data = await api.get(`/api/services/${id}`);
       setService(data.service);
     } catch (error) {
       toast.error("خطا در دریافت اطلاعات خدمت", { position: "top-left" });
@@ -33,7 +32,7 @@ export default function ServiceViewPage() {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await api.delete(`/services/${id}`);
+      await api.delete(`/api/services/${id}`);
       toast.success("خدمت با موفقیت حذف شد", { position: "top-left" });
       navigate("/services");
     } catch (error) {
@@ -97,7 +96,7 @@ export default function ServiceViewPage() {
         {service.image && (
           <div className="aspect-video bg-gray-100">
             <img
-              src={`${UPLOAD_URL}${service.image}`}
+              src={`${import.meta.env.VITE_API_URL}${service.image}`}
               alt={service.service_name}
               className="w-full h-full object-cover"
             />
