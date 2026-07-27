@@ -271,7 +271,7 @@ export default function Gallery() {
                     <img
                       src={photo.image}
                       alt={photo.title}
-                      loading="lazy"
+                      loading="eager"
                       width={photo.w}
                       height={photo.h}
                       className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
